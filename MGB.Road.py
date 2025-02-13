@@ -63,13 +63,13 @@ x_matrice, y_matrice = zip(*points_matrice)
 x_matrice, y_matrice = np.array(x_matrice).astype(int), np.array(y_matrice).astype(int)
 # Tracer les résultats
 plt.figure(figsize=(16, 8)) # Définition de la taille de la figure
-plt.scatter(x_trans, y_trans, c='blue', label="INRASTRUCTURE ROUTIERE", s=5) # Afficher les points de l'autoroute
+plt.scatter(x_trans, y_trans, c='blue', label="INFRASTRUCTURE ROUTIERE", s=5) # Afficher les points de l'autoroute
 plt.scatter(x_matrice, y_matrice, c='red', label="POINTS DE L'ESPACE", s=0.5) # Afficher les points de l'espace
 plt.axhline(0, color='black', linewidth=0.8) # Afficher l'axe horizontale (Axe X)
 plt.axvline(0, color='black', linewidth=0.8) # Afficher l'axe verticale (Axe Y)
 plt.xlabel('Axe X', fontsize=12) # Ajout de la mention Axe Y
 plt.ylabel('Axe Y', fontsize=12) # Ajout de la mention Axe Y
-plt.title("Visualisation des points de l'Autoroute A1 et de l'espace", fontsize=12) # Titre de la carte
+plt.title("INFRASTRUCTURE ROUTIERE ET POINTS DE L'ESPACE", fontsize=14) # Titre de la carte
 plt.legend(fontsize=10) # Légende
 plt.grid(True) # Grille pour faciliter la lecture
 # Ajustement des limites des axes pour éviter le vide
