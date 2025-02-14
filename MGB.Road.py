@@ -8,7 +8,7 @@ from scipy.interpolate import griddata # Importation de griddata pour l'interpol
 
 
 # 1ère Partie: Interpollation des points appartenant à la source linéaire
-data = pd.read_csv(r'C:\Users\HP\Desktop\Stage PFE\Excel\Coordonnées_164 points_autoroute.csv', sep=";") # Charger les données depuis le fichier CSV
+data = pd.read_csv(r'C:\Users\HP\Desktop\Stage PFE\Excel\Coordonnées_IR.csv', sep=";") # Charger les données depuis le fichier CSV
 data.columns=['X','Y'] # Renommer les colonnes en 'X' et 'Y'
 x_points, y_points = data['X'].values, data['Y'].values # x_points, y_points sont défini par la colonne nommée 'X' et 'Y'
 n_points = 1000 # Nombre de points à générer
@@ -24,11 +24,11 @@ new_data = pd.DataFrame({'X': x_interp, 'Y': y_interp}) # Créer un DataFrame av
 x_interp = x_interp. astype(int) # Convertir les X interpolés en entiers
 y_interp = y_interp.astype(int) # Convertir les Y interpolés en entiers
 data_int = pd.DataFrame({'X': x_interp, 'Y': y_interp}) # Créer un DataFrame avec les nouveaux points
-data_int.to_csv (r'C:\Users\HP\Desktop\Stage PFE\Excel\Points_autoroute_interpolés.csv',index=False,sep=";") # Exporter vers un fichier CSV
+data_int.to_csv (r'C:\Users\HP\Desktop\Stage PFE\Excel\Points_interpolés.csv',index=False,sep=";") # Exporter vers un fichier CSV
 # Tracer les résultats
 plt.figure(figsize=(16, 8)) # Définition de la taille de la figure
-plt.plot(x_points, y_points, 'o', label='Données originales', markersize=5) # Tracé des points originaux
-plt.plot(x_interp, y_interp, '-', label='Interpolation linéaire', linewidth=1) # Tracé de l'interpolation
+plt.plot(x_points, y_points, 'o', label="POINTS D'ORIGINE", markersize=5) # Tracé des points originaux
+plt.plot(x_interp, y_interp, '-', label='POINTS INTERPOLE', linewidth=1) # Tracé de l'interpolation
 plt.xlabel("Axe X", fontsize=12)  # Nom de l'axe X
 plt.ylabel("Axe Y", fontsize=12)  # Nom de l'axe Y
 plt.title("INFRASTRUSTURE ROUTIERE", fontsize=14)  # Ajuste la taille selon ton besoin
@@ -47,7 +47,7 @@ x0, y0 = df1['X'][0], df1['Y'][0] # Définition de l'origine de notre système d
 x_trans, y_trans = df1['X'] - x0, df1['Y'] - y0 # Transformation des coordonnées par translation
 # Fonction pour générer des points appartenant à l'espace dans une matrice
 def generer_points_matrice(x_trans, y_trans):
-    pas = 100 # Fixer le pas
+    pas = 100 # Pas fixer pour la grille de points de la matrice (point a chaque 100 m)
     # Déterminer les limites de la matrice
     xmin, xmax = np.floor(x_trans.min() / pas) * pas, np.ceil(x_trans.max() / pas) * pas
     ymin, ymax = np.floor(y_trans.min() / pas) * pas, np.ceil(y_trans.max() / pas) * pas
@@ -121,10 +121,10 @@ def concentration_gauss(xd, yd, Q, u, h, sig_y, sig_z):
     concentration = (Q / (np.pi * u * sig_y * sig_z)) * exp_term # Modèle de GAUSS
     return concentration 
 # Fonction pour le Calcule la concentration des polluants en chaque point de l’espace en fonction du modèle de dispersion gaussien.
-def calculate_concentration(x_matrice, y_matrice, x_trans, y_trans, wind_direction_deg, Q, u, h, classe, zone):
-    wind_angle = np.radians(wind_direction_deg) # Conversion de l'angle du vent en radians
+def calculate_concentration(x_matrice, y_matrice, x_trans, y_trans, wind_direction, Q, u, h, classe, zone):
+    wind_angle = np.radians(wind_direction) # Conversion de l'angle du vent en radians
     road_rotated = np.array([rotate_point(rx, ry, wind_angle) for rx, ry in zip(x_trans, y_trans)]) # Pré-calcul de la rotation des points de la route 
-    buffer_distance = 100 # Définition de la zone tampon de 100m autour de la route
+    buffer_distance = 100 # Fixer la zone tampon de 100m selon la méthode de Briggs
     concentrations = []
     for px, py in zip(x_matrice, y_matrice):
         px_rot, py_rot = rotate_point(px, py, wind_angle) # Rotation du point d’espace pour l’aligner avec le vent
@@ -135,35 +135,35 @@ def calculate_concentration(x_matrice, y_matrice, x_trans, y_trans, wind_directi
         else:
             for rx_rot, ry_rot in road_rotated:
                 if rx_rot <= px_rot:  # Vérification des contributeurs
-                    xd = px_rot - rx_rot
-                    yd = py_rot - ry_rot
-                    sigma_y, sigma_z = calculer_sigma(classe, xd, zone)
-                    contribution = concentration_gauss(xd, yd, Q, u, h, sigma_y, sigma_z)
-                    total_concentration += np.sum(contribution)
-        concentrations.append((px, py, total_concentration))
+                    xd = px_rot - rx_rot # xd est la coordonée x utilisé dans le calcul
+                    yd = py_rot - ry_rot #yd est la coordonnée y utilisé dans le calcul
+                    sigma_y, sigma_z = calculer_sigma(classe, xd, zone) # Calcul des écart types
+                    contribution = concentration_gauss(xd, yd, Q, u, h, sigma_y, sigma_z) # Calcul de la contribution de chaque point contributeur
+                    total_concentration += np.sum(contribution) # Somme des contributions
+        concentrations.append((px, py, total_concentration)) # Concentration égale à le somme des contributions
     return pd.DataFrame(concentrations, columns=['X', 'Y', 'Concentration'])
 # ---- Données d'entrée ----
 i=10**6
-wind_direction_deg = 180
-Q, u, h, classe, zone = (500 * 10**-3)*i , 2, 0, 3, 'rural' #Q en g/s, u en m/s, h en m
-result = calculate_concentration(x_matrice, y_matrice, x_trans, y_trans, wind_direction_deg, Q, u, h, classe, zone)
+wind_direction = 180
+Q, u, h, classe, zone = (500 * 10**-3)*i , 2, 0, 3, 'rural' # Q (g/s), u (m/s), h (m)
+result = calculate_concentration(x_matrice, y_matrice, x_trans, y_trans, wind_direction, Q, u, h, classe, zone)
 print(result.head())
-result.to_csv (r'C:\Users\HP\Desktop\Stage PFE\Excel\Concentration.csv',index=False,sep=";")
+result.to_csv (r'C:\Users\HP\Desktop\Stage PFE\Excel\Concentration_IR.csv',index=False,sep=";")
 
 
 # 4ème Partie : Affichage de la carte des concentrations
-step = 200  # Exemple : 10 mètres entre chaque point
+pas = 200  # Pas fixer pour la grille de concentration (point a chaque 200 m)
 # Définition des bornes de la grille
 x_min, x_max = x_matrice.min(), x_matrice.max()
 y_min, y_max = y_matrice.min(), y_matrice.max()
 # Génération des points avec un pas constant
-xi = np.arange(x_min, x_max + step, step) # +step pour inclure la borne max suibant x
-yi = np.arange(y_min, y_max + step, step) # +step pour inclure la borne max suibant y
+xi = np.arange(x_min, x_max + pas, pas) # +pas pour inclure la borne max suibant x
+yi = np.arange(y_min, y_max + pas, pas) # +pas pour inclure la borne max suibant y
 xi, yi = np.meshgrid(xi, yi) # Création de la grille
 zi = griddata((x_matrice, y_matrice), result["Concentration"], (xi, yi), method='linear') # Interpolation linéaire des concentrations sur la grille
 # Définition de la zone tampon autour de la route
-buffer_distance = 100 # Distance de la zone tampon en mètres
-# Calcul des vecteurs perpendiculaires à la route
+buffer_distance = 100 # Fixer Distance de la zone tampon en mètres
+# Calcul des vecteurs perpendiculaires à l'Infrastructure Routière
 dx, dy = np.gradient(x_trans), np.gradient(y_trans)
 norm = np.sqrt(dx**2 + dy**2)
 dx, dy = dx / norm, dy / norm
@@ -179,7 +179,7 @@ plt.colorbar(label="Concentration en μg/m³") # Affichage de la barre de concen
 plt.scatter(x_trans, y_trans, color='purple', marker='o', s=5, label="INFRASTRUCTURE ROUTIERE") # Ajouter les points de la route
 plt.gca().add_patch(polygon) # Ajouter le polygone de la zone tampon
 # Ajouter une flèche pour la direction du vent
-angle_rad = np.radians(wind_direction_deg) # Direction du vent
+angle_rad = np.radians(wind_direction) # Direction du vent
 flx, fly = x_trans.mean(), y_trans.mean() # Position de départ de la flèche
 lf = (x_trans.max() - x_trans.min()) * 0.08 # Longueur de la flèche
 flx_a, fly_a = flx + lf * np.cos(angle_rad), fly + lf * np.sin(angle_rad) # Flèche dynamique
