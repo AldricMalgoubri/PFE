@@ -29,8 +29,8 @@ data_int.to_csv (r'C:\Users\HP\Desktop\Stage PFE\Excel\Points_interpolés.csv',i
 plt.figure(figsize=(16, 8)) # Définition de la taille de la figure
 plt.plot(x_points, y_points, 'o', label="POINTS D'ORIGINE", markersize=5) # Tracé des points originaux
 plt.plot(x_interp, y_interp, '-', label='POINTS INTERPOLE', linewidth=1) # Tracé de l'interpolation
-plt.xlabel("Axe X", fontsize=12)  # Nom de l'axe X
-plt.ylabel("Axe Y", fontsize=12)  # Nom de l'axe Y
+plt.xlabel("Axe X (m)", fontsize=12)  # Nom de l'axe X
+plt.ylabel("Axe Y (m)", fontsize=12)  # Nom de l'axe Y
 plt.title("INFRASTRUSTURE ROUTIERE", fontsize=14)  # Ajuste la taille selon ton besoin
 plt.legend(fontsize=10) # Legende
 plt.grid(True) # Ajout d'une grille
@@ -67,8 +67,8 @@ plt.scatter(x_trans, y_trans, c='blue', label="INFRASTRUCTURE ROUTIERE", s=5) # 
 plt.scatter(x_matrice, y_matrice, c='red', label="POINTS DE L'ESPACE", s=0.5) # Afficher les points de l'espace
 plt.axhline(0, color='black', linewidth=0.8) # Afficher l'axe horizontale (Axe X)
 plt.axvline(0, color='black', linewidth=0.8) # Afficher l'axe verticale (Axe Y)
-plt.xlabel('Axe X', fontsize=12) # Ajout de la mention Axe Y
-plt.ylabel('Axe Y', fontsize=12) # Ajout de la mention Axe Y
+plt.xlabel('Axe X (m)', fontsize=12) # Ajout de la mention Axe Y
+plt.ylabel('Axe Y (m)', fontsize=12) # Ajout de la mention Axe Y
 plt.title("INFRASTRUCTURE ROUTIERE ET POINTS DE L'ESPACE", fontsize=14) # Titre de la carte
 plt.legend(fontsize=10) # Légende
 plt.grid(True) # Grille pour faciliter la lecture
@@ -189,8 +189,8 @@ plt.annotate("Vent",
              xytext=(flx, fly),
              arrowprops=dict(facecolor='orange', edgecolor='orange', arrowstyle='-|>', lw=3),
              fontsize=12, color='orange')
-plt.xlabel("Axe X", fontsize=12)  # Nom de l'axe X
-plt.ylabel("Axe Y", fontsize=12)  # Nom de l'axe Y
+plt.xlabel("Axe X (m)", fontsize=12)  # Nom de l'axe X
+plt.ylabel("Axe Y (m)", fontsize=12)  # Nom de l'axe Y
 plt.title("CARTE DES CONCENTRATIONS DES POLLUANTS", fontsize=14)  # Ajuste la taille selon ton besoin
 plt.legend(fontsize=10) #Affichage de la legende
 plt.xlim(x_trans.min(), x_trans.max()) # Ajustement des limites pour bien entourer la route
